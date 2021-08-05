@@ -1,7 +1,7 @@
 ﻿@model KnowledgeBaseDetailViewModel
+@using KnowledgeSpace.WebPortal.Extensions
 @{
-    ViewData["Title"] = Model.Detail.Title + " - Knowledge Space";
-    ViewData["Description"] = Model.Detail.Description;
+    ViewData["Title"] = Model.Detail.Title;
     Layout = "_SubLayout";
 }
 @section scripts{
@@ -78,7 +78,7 @@
             <strong>Tags:&nbsp;&nbsp;</strong>
             @foreach (var label in Model.Labels)
             {
-                <a href="/tag/@label.Id" rel="tag" title="@label.Name">@label.Name</a>
+                <a href="/tag/@label.Id" rel="tag">@label.Name</a>
             }
         </span>
     </div>
@@ -89,8 +89,6 @@
 
         <ol class="commentlist" id="comment_list">
         </ol>
-        <a id="comment-pagination" data-page-index="1" href="#" style="display:none">Xem thêm bình luận</a>
-
         @if (User.Identity.IsAuthenticated)
         {
             <div id="respond">

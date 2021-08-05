@@ -1,10 +1,7 @@
 ﻿@model ListByTagIdViewModel
 @{
     Layout = "_SubLayout";
-    string suffixPage = Model.Data.PageIndex > 1 ? " - Trang " + Model.Data.PageIndex : "";
-    ViewData["Title"] = Model.LabelVm.Name + suffixPage;
-    ViewData["Description"] = "Các bài viết liên quan đến thẻ " + Model.LabelVm.Name + suffixPage;
-
+    ViewData["Title"] = Model.LabelVm.Name;
 }
 <!-- start of page content -->
 <div class="span8 main-listing">

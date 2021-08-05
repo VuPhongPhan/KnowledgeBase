@@ -228,103 +228,37 @@ namespace KnowledgeSpace.BackendServer.Controllers
 
         [HttpGet("{knowledgeBaseId}/comments/tree")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetCommentTreeByKnowledgeBaseId(int knowledgeBaseId, int pageIndex, int pageSize)
+        public async Task<IActionResult> GetCommentTreeByKnowledgeBaseId(int knowledgeBaseId)
         {
             var query = from c in _context.Comments
                         join u in _context.Users
                             on c.OwnerUserId equals u.Id
                         where c.KnowledgeBaseId == knowledgeBaseId
-                        where c.ReplyId == null
                         select new { c, u };
 
-            var totalRecords = await query.CountAsync();
-            var rootComments = await query.OrderByDescending(x => x.c.CreateDate)
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .Select(x => new CommentVm()
-                {
-                    Id = x.c.Id,
-                    CreateDate = x.c.CreateDate,
-                    KnowledgeBaseId = x.c.KnowledgeBaseId,
-                    OwnerUserId = x.c.OwnerUserId,
-                    OwnerName = x.u.FirstName + " " + x.u.LastName,
-                })
-                .ToListAsync();
+            var flatComments = await query.Select(x => new CommentVm()
+            {
+                Id = x.c.Id,
+                Content = x.c.Content,
+                CreateDate = x.c.CreateDate,
+                KnowledgeBaseId = x.c.KnowledgeBaseId,
+                OwnerUserId = x.c.OwnerUserId,
+                OwnerName = x.u.FirstName + " " + x.u.LastName,
+                ReplyId = x.c.ReplyId
+            }).ToListAsync();
 
-            foreach (var comment in rootComments)//only loop through root categories
+            var lookup = flatComments.ToLookup(c => c.ReplyId);
+            var rootCategories = flatComments.Where(x => x.ReplyId == null);
+
+            foreach (var c in rootCategories)//only loop through root categories
             {
                 // you can skip the check if you want an empty list instead of null
                 // when there is no children
-                var repliedQuery = from c in _context.Comments
-                                   join u in _context.Users
-                                       on c.OwnerUserId equals u.Id
-                                   where c.KnowledgeBaseId == knowledgeBaseId
-                                   where c.ReplyId == comment.Id
-                                   select new { c, u };
-
-                var totalRepliedCommentsRecords = await repliedQuery.CountAsync();
-                var repliedComments = await repliedQuery.OrderByDescending(x => x.c.CreateDate)
-                    .Take(pageSize)
-                    .Select(x => new CommentVm()
-                    {
-                        Id = x.c.Id,
-                        CreateDate = x.c.CreateDate,
-                        KnowledgeBaseId = x.c.KnowledgeBaseId,
-                        OwnerUserId = x.c.OwnerUserId,
-                        OwnerName = x.u.FirstName + " " + x.u.LastName,
-                    })
-                    .ToListAsync();
-
-                comment.Children = new Pagination<CommentVm>()
-                {
-                    PageIndex = 1,
-                    PageSize = 10,
-                    Items = repliedComments,
-                    TotalRecords = totalRepliedCommentsRecords
-                };
+                if (lookup.Contains(c.Id))
+                    c.Children = lookup[c.Id].ToList();
             }
 
-            return Ok(new Pagination<CommentVm>
-            {
-                PageIndex = pageIndex,
-                PageSize = pageSize,
-                Items = rootComments,
-                TotalRecords = totalRecords
-            });
-        }
-
-        [HttpGet("{knowledgeBaseId}/comments/{rootCommentId}/replied")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetRepliedCommentsPaging(int knowledgeBaseId, int rootCommentId, int pageIndex, int pageSize)
-        {
-            var query = from c in _context.Comments
-                        join u in _context.Users
-                            on c.OwnerUserId equals u.Id
-                        where c.KnowledgeBaseId == knowledgeBaseId
-                        where c.ReplyId == rootCommentId
-                        select new { c, u };
-
-            var totalRecords = await query.CountAsync();
-            var comments = await query.OrderByDescending(x => x.c.CreateDate)
-                .Skip((pageIndex - 1) * pageSize)
-                .Take(pageSize)
-                .Select(x => new CommentVm()
-                {
-                    Id = x.c.Id,
-                    CreateDate = x.c.CreateDate,
-                    KnowledgeBaseId = x.c.KnowledgeBaseId,
-                    OwnerUserId = x.c.OwnerUserId,
-                    OwnerName = x.u.FirstName + " " + x.u.LastName,
-                })
-                .ToListAsync();
-
-            return Ok(new Pagination<CommentVm>
-            {
-                PageIndex = pageIndex,
-                PageSize = pageSize,
-                Items = comments,
-                TotalRecords = totalRecords
-            });
+            return Ok(rootCategories);
         }
 
         #endregion Comments

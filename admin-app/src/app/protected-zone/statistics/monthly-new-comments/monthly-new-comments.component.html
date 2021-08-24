@@ -1,14 +1,14 @@
 <p>{{screenTitle}}</p>
 <div class="animated fadeIn">
     <p-panel #pnl [style]="{'margin-bottom':'10px'}">
-        <p-header>
+        <!-- <p-header>
             <div class="ui-g-6">
                 <input style="width: 100%;" pInputText (keyup.enter)="loadData()" [(ngModel)]="year" type="number">
             </div>
             <div class="ui-g-6">
                 <button pButton type="button" label="Tải báo cáo" icon="fa fa-plus" (click)="loadData()"></button>
             </div>
-        </p-header>
+        </p-header> -->
         <p-table #dt [value]="items" [metaKeySelection]="true" [resizableColumns]="true" columnResizeMode="expand"
             [responsive]="true" [scrollable]="true">
             <ng-template pTemplate="header">

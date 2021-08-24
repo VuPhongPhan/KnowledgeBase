@@ -138,7 +138,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 
         [HttpPut("{id}")]
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
-        public async Task<IActionResult> PutUser(string id, [FromBody]UserCreateRequest request)
+        public async Task<IActionResult> PutUser(string id, [FromBody] UserCreateRequest request)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
@@ -161,7 +161,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
         [HttpPut("{id}/change-password")]
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
         [ApiValidationFilter]
-        public async Task<IActionResult> PutUserPassword(string id, [FromBody]UserPasswordChangeRequest request)
+        public async Task<IActionResult> PutUserPassword(string id, [FromBody] UserPasswordChangeRequest request)
         {
             var user = await _userManager.FindByIdAsync(id);
             if (user == null)
@@ -249,24 +249,40 @@ namespace KnowledgeSpace.BackendServer.Controllers
             return Ok(roles);
         }
 
+        /// <summary>
+        /// API gán quyền cho user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpPost("{userId}/roles")]
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.UPDATE)]
         public async Task<IActionResult> PostRolesToUserUser(string userId, [FromBody] RoleAssignRequest request)
         {
+            // check request role
             if (request.RoleNames?.Length == 0)
             {
                 return BadRequest(new ApiBadRequestResponse("Role names cannot empty"));
             }
             var user = await _userManager.FindByIdAsync(userId);
+            // check request user
             if (user == null)
                 return NotFound(new ApiNotFoundResponse($"Cannot found user with id: {userId}"));
+
             var result = await _userManager.AddToRolesAsync(user, request.RoleNames);
+
             if (result.Succeeded)
                 return Ok();
 
             return BadRequest(new ApiBadRequestResponse(result));
         }
 
+        /// <summary>
+        /// HÀm xóa quyền của user
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         [HttpDelete("{userId}/roles")]
         [ClaimRequirement(FunctionCode.SYSTEM_USER, CommandCode.VIEW)]
         public async Task<IActionResult> RemoveRolesFromUser(string userId, [FromQuery] RoleAssignRequest request)
@@ -288,6 +304,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
 
             return BadRequest(new ApiBadRequestResponse(result));
         }
+
 
         [HttpGet("{userId}/knowledgeBases")]
         public async Task<IActionResult> GetKnowledgeBasesByUserId(string userId, int pageIndex, int pageSize)

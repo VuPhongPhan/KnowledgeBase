@@ -25,9 +25,7 @@ namespace KnowledgeSpace.WebPortal.Services
 
         Task<List<CommentVm>> GetRecentComments(int take);
 
-        Task<Pagination<CommentVm>> GetCommentsTree(int knowledgeBaseId, int pageIndex, int pageSize);
-
-        Task<Pagination<CommentVm>> GetRepliedComments(int knowledgeBaseId, int rootCommentId, int pageIndex, int pageSize);
+        Task<List<CommentVm>> GetCommentsTree(int knowledgeBaseId);
 
         Task<CommentVm> PostComment(CommentCreateRequest request);
 

@@ -46,6 +46,12 @@ namespace KnowledgeSpace.WebPortal.Controllers
             return View(viewModel);
         }
 
+        /// <summary>
+        /// Hàm tìm kiếm bài viết 
+        /// </summary>
+        /// <param name="keyword"></param>
+        /// <param name="page"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Search(string keyword, int page = 1)
         {
             var pageSize = int.Parse(_configuration["PageSize"]);
@@ -57,7 +63,12 @@ namespace KnowledgeSpace.WebPortal.Controllers
             };
             return View(viewModel);
         }
-
+        /// <summary>
+        /// Hàm lấy danh sách theo tag
+        /// </summary>
+        /// <param name="tagId"></param>
+        /// <param name="page"></param>
+        /// <returns></returns>
         public async Task<IActionResult> ListByTag(string tagId, int page = 1)
         {
             var pageSize = int.Parse(_configuration["PageSize"]);
@@ -70,7 +81,11 @@ namespace KnowledgeSpace.WebPortal.Controllers
             };
             return View(viewModel);
         }
-
+        /// <summary>
+        /// Hàm lấy chi tiết bài viết
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<IActionResult> Details(int id)
         {
             var knowledgeBase = await _knowledgeBaseApiClient.GetKnowledgeBaseDetail(id);
@@ -93,15 +108,9 @@ namespace KnowledgeSpace.WebPortal.Controllers
 
         #region AJAX Methods
 
-        public async Task<IActionResult> GetCommentsByKnowledgeBaseId(int knowledgeBaseId, int pageIndex = 1, int pageSize = 2)
+        public async Task<IActionResult> GetCommentByKnowledgeBaseId(int knowledgeBaseId)
         {
-            var data = await _knowledgeBaseApiClient.GetCommentsTree(knowledgeBaseId, pageIndex, pageSize);
-            return Ok(data);
-        }
-
-        public async Task<IActionResult> GetRepliedCommentsByKnowledgeBaseId(int knowledgeBaseId, int rootCommentId, int pageIndex = 1, int pageSize = 2)
-        {
-            var data = await _knowledgeBaseApiClient.GetRepliedComments(knowledgeBaseId, rootCommentId, pageIndex, pageSize);
+            var data = await _knowledgeBaseApiClient.GetCommentsTree(knowledgeBaseId);
             return Ok(data);
         }
 

@@ -200,6 +200,7 @@ namespace KnowledgeSpace.BackendServer.Controllers
             {
                 query = query.Where(x => x.k.CategoryId == categoryId.Value);
             }
+            
             var totalRecords = await query.CountAsync();
             var items = await query.Skip((pageIndex - 1) * pageSize)
                 .Take(pageSize)
@@ -214,8 +215,10 @@ namespace KnowledgeSpace.BackendServer.Controllers
                     CategoryName = u.c.Name,
                     NumberOfVotes = u.k.NumberOfVotes,
                     CreateDate = u.k.CreateDate,
-                    NumberOfComments = u.k.NumberOfComments
+                    NumberOfComments = u.k.NumberOfComments,
+                    NumberOfReports = u.k.NumberOfReports
                 })
+                //.Where(u => u.NumberOfReposts > 5)
                 .ToListAsync();
 
             var pagination = new Pagination<KnowledgeBaseQuickVm>

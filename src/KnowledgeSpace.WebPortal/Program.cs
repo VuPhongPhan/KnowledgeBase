@@ -21,7 +21,6 @@ namespace KnowledgeSpace.WebPortal
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseKestrel(c => c.AddServerHeader = false);
                 });
     }
 }
